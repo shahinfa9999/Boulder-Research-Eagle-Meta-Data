@@ -3,21 +3,21 @@ import pandas as pd
 from pipeline import load_data_streamlit, run_pipeline, aggregate_by_two_weeks, load_perch_coords, PIPELINE_FUNCTIONS_LIST, load_data
 
 st.set_page_config(layout="wide")
-st.title("Raptor Nest Observation Pipeline")
+st.title("Bird Nest Observation Pipeline")
 
 # ---------------- Sidebar ----------------
 st.sidebar.header("Inputs")
 
 obs_file = st.sidebar.file_uploader(
-    "Upload Observation CSV", type=["csv"]
+    "Nest Aggregate", type=["csv"]
 )
 
 perch_file = st.sidebar.file_uploader(
     "Upload Perch Code Excel", type=["xlsx"]
 )
 
-selected_nests = st.sidebar.text_input(
-    "Nest(s) (comma separated)", placeholder="Hygiene"
+selected_nests = st.sidebar.selectbox(
+    "Nest", ["Hygiene", "BOCR", "CR16.5", "Stearns", "Erie", "White Rocks", "Erie", "ERLA", "RD15"]
 )
 
 date_range = st.sidebar.date_input(
@@ -26,18 +26,30 @@ date_range = st.sidebar.date_input(
 
 period = st.sidebar.selectbox(
     "Aggregation period",
-    ["2W", "1M", "1W"]
+    ["2W", "1M", "1W", "3D", "1D"]
+)
+
+Percent = st.sidebar.selectbox(
+    "Calculate period percent?",
+    ["yes", "no"], index=1
 )
 
 
-
-metric = st.sidebar.selectbox(
-    "Metric to aggregate",
-    ["(None)"] + PIPELINE_FUNCTIONS_LIST
+metric = st.sidebar.multiselect(
+    "Metric(s) to aggregate - leave blank/None for all",
+    ["(None)"] + PIPELINE_FUNCTIONS_LIST,
+    default=["(None)"]
 )
 
-if metric == "(None)":
-    metric = None
+if isinstance(metric, list):
+    # If user accidentally includes "(None)" along with other metrics, drop it.
+    metric = [m for m in metric if m != "(None)"]
+    if len(metric) == 0:
+        metric = None
+    elif len(metric) == 1:
+        metric = metric[0]
+elif isinstance(metric, list) and len(metric) >= 1:
+    metric = metric[0]
 
 
 run_button = st.sidebar.button("Run Pipeline")
@@ -79,11 +91,13 @@ if run_button:
     st.subheader("Processed Data Preview")
     st.dataframe(df_processed.head(50))
 
+
     # Aggregation
     agg_df = aggregate_by_two_weeks(
         df_processed,
         period=period,
-        metric=metric if metric else None
+        metric=metric if metric else None, 
+        percent=(Percent == "yes")
     )
 
     st.subheader("Aggregated Output")

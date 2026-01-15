@@ -2748,16 +2748,21 @@ def export_pipeline_tabs(tabs, path="pipeline_tabs.xlsx"):
             df = pd.DataFrame({"function": [f.__name__ for f in funcs]})
             df.to_excel(writer, sheet_name=tab[:31], index=False)
 
-def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, output_path='Period_week_summary.xlsx'):
+def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, percent=False, output_path='Period_week_summary.xlsx'):
     """
     Aggregate all metrics by 2-week periods.
     Sums all numeric columns (the 0/3 indicator columns).
+    `metric` may be None, a single column name (string), or a list/tuple of column names.
     """
     df = df.copy()
     if metric:
         try:
-            df = df[['date', 'time', metric]]
-        except:
+            if isinstance(metric, (list, tuple)):
+                cols = ['date', 'time'] + list(metric)
+            else:
+                cols = ['date', 'time', metric]
+            df = df[cols]
+        except Exception:
             pass
     
     # Convert date to datetime
@@ -2808,6 +2813,12 @@ def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, out
     # Reorder columns: two_week_bin, num_observations, then metrics
     cols = ['Period_bin', 'num_observations'] + [c for c in agg_df.columns if c not in ['Period_bin', 'num_observations']]
     agg_df = agg_df[cols]
+
+    if percent:
+        # add a coloumn calculated percentage
+        for col in sum_cols:
+            perc_col = f"{col}_percent"
+            agg_df[perc_col] = (agg_df[col] / (agg_df['num_observations'] * 3)) * 100
     
     # Save to Excel
     agg_df.to_excel(output_path, index=False, engine='openpyxl')
