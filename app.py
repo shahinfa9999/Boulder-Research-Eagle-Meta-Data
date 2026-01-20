@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 from pipeline import load_data_streamlit, run_pipeline, aggregate_by_two_weeks, load_perch_coords, PIPELINE_FUNCTIONS_LIST, load_data
 
+from session_stats import run_stats_in_memory
+from nest_maintenance_pipeline import run_pipeline_nm
+
+
 st.set_page_config(layout="wide")
 st.title("Bird Nest Observation Pipeline")
 
@@ -34,6 +38,15 @@ Percent = st.sidebar.selectbox(
     ["yes", "no"], index=1
 )
 
+session_file = st.sidebar.file_uploader(
+    "Upload Session Stats CSV (optional)", type=["csv"]
+)
+
+maintenance_file = st.sidebar.file_uploader(
+    "Upload Nest-Maintenance Raw CSV (optional)",
+    type=["csv"]
+)
+
 
 metric = st.sidebar.multiselect(
     "Metric(s) to aggregate - leave blank/None for all",
@@ -61,10 +74,69 @@ if run_button:
         st.stop()
 
     df = load_data_streamlit(obs_file)
+    # ---------------- Session-Level Statistics ----------------
+    if session_file:
+        st.subheader("Session-Level Statistics")
 
+        try:
+            session_df = load_data_streamlit(session_file)
 
+            with st.spinner("Computing session-level statistics…"):
+                stats_summary, stats_roles, stats_cis = run_stats_in_memory(session_df)
 
+            st.markdown("### Summary")
+            st.dataframe(stats_summary, use_container_width=True)
 
+            st.markdown("### By Role")
+            st.dataframe(stats_roles, use_container_width=True)
+
+            st.markdown("### Poisson 95% Confidence Intervals")
+            st.dataframe(stats_cis, use_container_width=True)
+
+            # ---- Downloads ----
+            st.download_button(
+                "Download stats summary CSV",
+                stats_summary.to_csv(index=False),
+                "session_stats_summary.csv"
+            )
+
+            st.download_button(
+                "Download stats by role CSV",
+                stats_roles.to_csv(index=False),
+                "session_stats_by_role.csv"
+            )
+
+            st.download_button(
+                "Download stats CIs CSV",
+                stats_cis.to_csv(index=False),
+                "session_stats_CIs.csv"
+            )
+
+        except Exception as e:
+            st.error("Session-level statistics could not be computed.")
+            st.exception(e)
+
+    if maintenance_file:
+        sessions_df, biweekly_df = run_pipeline_nm(maintenance_file)
+
+        st.subheader("Session Nest-Maintenance Output")
+        st.dataframe(sessions_df)
+        st.download_button(
+            "Download session Nest-Maintenance CSV",
+            sessions_df.to_csv(index=False),
+            "session_nest_maintenance.csv"
+        )
+
+        st.subheader("Biweekly Nest-Maintenance Output")
+        st.dataframe(biweekly_df)
+        st.download_button(
+            "Download biweekly Nest-Maintenance CSV",
+            biweekly_df.to_csv(index=False),
+            "biweekly_nest_maintenance.csv"
+        )
+
+    # Then stats:
+    stats_summary, stats_roles, stats_cis = run_stats_in_memory(sessions_df)
     if perch_file:
         perch_coords = load_perch_coords(
             perch_file,
