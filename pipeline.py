@@ -2755,6 +2755,15 @@ def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, per
     `metric` may be None, a single column name (string), or a list/tuple of column names.
     """
     df = df.copy()
+    df['female_counts_per_date'] = df['date'].where(df['female.loc'].isin([0,14])).groupby(df['date']).transform('count')
+    df['male_counts_per_date'] = df['date'].where(df['male.loc'].isin([0,14])).groupby(df['date']).transform('count')
+    df['undiff1_counts_per_date'] = df['date'].where(df['undiff1.loc'].isin([0,14])).groupby(df['date']).transform('count')
+    df['undiff2_counts_per_date'] = df['date'].where(df['undiff2.loc'].isin([0,14])).groupby(df['date']).transform('count')
+
+    df['total_valid_sex_counts_per_period'] = (df['female_counts_per_date'] + df['male_counts_per_date'] )/ (df['female_counts_per_date'] + df['male_counts_per_date'] + df['undiff1_counts_per_date'] + df['undiff2_counts_per_date'])
+    df = df.drop(columns=['female_counts_per_date', 'male_counts_per_date', 'undiff1_counts_per_date', 'undiff2_counts_per_date'])
+    df = df[df['total_valid_sex_counts_per_period'].fillna(0) >= 0.9]
+
     if metric:
         try:
             if isinstance(metric, (list, tuple)):
@@ -2787,6 +2796,8 @@ def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, per
         'longitude', 'latitude',  # coordinate columns
     ]
     
+
+
     # Get numeric columns (the metric columns)
     numeric_cols = df.select_dtypes(include=[np.number]).columns
     sum_cols = [col for col in numeric_cols if col not in exclude_cols and not any(x in col for x in ['longitude', 'latitude', 'dist_from_nest'])]
@@ -2804,6 +2815,7 @@ def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, per
     
     # Count observations per 2-week period
     obs_count = df.groupby('Period_bin').size().reset_index(name='num_observations')
+    obs_count = obs_count[obs_count['num_observations'] > 3]  # only include periods with >3 observations
     obs_count['Period_bin'] = obs_count['Period_bin'].apply(
         lambda p: f"{p.start_time.date()} to {p.end_time.date()}"
     )
