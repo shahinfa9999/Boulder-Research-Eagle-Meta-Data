@@ -13,11 +13,13 @@ st.title("Bird Nest Observation Pipeline")
 st.sidebar.header("Inputs")
 
 obs_file = st.sidebar.file_uploader(
-    "Nest Aggregate", type=["csv"]
+    "Nest Aggregate", type=["csv"],
+    help="Required. Current nest-level aggregate export for the selected territory."
 )
 
 perch_file = st.sidebar.file_uploader(
-    "Upload Perch Code Excel", type=["xlsx"]
+    "Upload Perch Code Excel", type=["xlsx"],
+    help="Required. Master perch reference table for all nests."
 )
 
 selected_nests = st.sidebar.selectbox(
@@ -25,17 +27,30 @@ selected_nests = st.sidebar.selectbox(
 )
 
 date_range = st.sidebar.date_input(
-    "Date range (optional)", value=[]
+    "Date range (optional)", value=[],
+    help="Select start and end date to filter observations by date. Default is no date filtering."
 )
 
 period = st.sidebar.selectbox(
-    "Aggregation period",
-    ["2W", "1M", "1W", "3D", "1D"]
+    "Aggregation Window",
+    ["1D", "1W", "2W", "4W"],
+    help=(
+        "Defines time binning for summary outputs.\n\n"
+        "• 4W = fixed 28-day window (not calendar month)\n"
+        "• 1D bins are calendar days\n"
+        "• Seasonal framing handled via Start / End Date"
+    )
 )
 
-Percent = st.sidebar.selectbox(
-    "Calculate period percent?",
-    ["yes", "no"], index=1
+normalize = st.sidebar.selectbox(
+    "Calculated (effort-normalized) output",
+    ["yes", "no"],
+    index=0,
+    help=(
+        "Most metrics return % of survey time.\n"
+        "Stick metrics return rate/hour.\n"
+        "7D returns a raw count."
+    )
 )
 
 session_file = st.sidebar.file_uploader(
@@ -174,9 +189,9 @@ if run_button:
         df_processed,
         period=period,
         metric=metric if metric else None, 
-        percent=(Percent == "yes")
+        percent=(normalize == "yes")
     )
-    if Percent == "yes":
+    if normalize == "yes":
         agg_df = agg_df[['Period_bin', 'num_observations', str(metric), str(metric) + '_percent']] if metric else agg_df
     else:
         agg_df = agg_df[['Period_bin', 'num_observations', str(metric)]] if metric else agg_df
