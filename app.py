@@ -135,8 +135,9 @@ if run_button:
             "biweekly_nest_maintenance.csv"
         )
 
-    # Then stats:
-    stats_summary, stats_roles, stats_cis = run_stats_in_memory(sessions_df)
+        # Then stats:
+        stats_summary, stats_roles, stats_cis = run_stats_in_memory(sessions_df)
+
     if perch_file:
         perch_coords = load_perch_coords(
             perch_file,
@@ -153,6 +154,8 @@ if run_button:
                 (df["date"] >= pd.to_datetime(date_range[0])) &
                 (df["date"] <= pd.to_datetime(date_range[1]))
             ]
+    if selected_nests:
+        df = df[df["nest.name"] == selected_nests]
 
     with st.spinner("Running pipeline…"):
         df_processed = run_pipeline(df)
@@ -162,7 +165,9 @@ if run_button:
     # ---------------- Results ----------------
     st.subheader("Processed Data Preview")
     st.dataframe(df_processed.head(50))
+    
 
+    
 
     # Aggregation
     agg_df = aggregate_by_two_weeks(
@@ -171,6 +176,10 @@ if run_button:
         metric=metric if metric else None, 
         percent=(Percent == "yes")
     )
+    if Percent == "yes":
+        agg_df = agg_df[['Period_bin', 'num_observations', str(metric), str(metric) + '_percent']] if metric else agg_df
+    else:
+        agg_df = agg_df[['Period_bin', 'num_observations', str(metric)]] if metric else agg_df
 
     st.subheader("Aggregated Output")
     st.dataframe(agg_df)

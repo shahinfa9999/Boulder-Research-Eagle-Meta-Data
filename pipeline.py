@@ -187,6 +187,30 @@ PIPELINE_FUNCTIONS_LIST = [
     "two_adults_attending",
 ]
 
+NEST_OVERRIDES = [
+    # site, nest, start_date, end_date, lon, lat
+    ("BOCR", "nest", None, None, -105.0141043, 40.12991487),
+
+    ("Stearns", "nest C", "2025-02-21", None, -105.1106446, 39.94299712),
+    ("Stearns", "nest D", "2020-05-11", "2024-08-16", -105.1035288, 39.94478813),
+    ("Stearns", "nest F", "2019-10-18", "2020-05-11", -105.1069663, 39.94077992),
+    ("Stearns", "nest", None, "2019-10-18", -105.1178065, 39.94873539),
+
+    ("ERLA", "nest H", "2025-11-04", None, -105.1123485, 40.01797908),
+    ("ERLA", "nest LH", "2023-09-11", "2025-11-04", -105.1123366, 40.0180776),
+    ("ERLA", "nest", "2022-12-13", "2023-03-31", -105.1123373, 40.01918079),
+
+    ("CR16.5", "nest", None, None, -105.0430594, 40.10609774),
+
+    ("White Rocks", "nest AG", "2023-04-03", None, -105.1474259, 40.04851),
+    ("White Rocks", "nest R", "2017-11-12", "2023-04-03", -105.1736967, 40.04537247),
+    ("White Rocks", "nest A", None, "2017-11-12", -105.1681525, 40.05016657),
+
+    ("Erie", "nest", "2017-09-01", None, -105.013426, 40.095002),
+    ("Erie", "nest A", None, "2017-09-01", -104.9514233, 40.07354856),
+
+    ("Hygiene", "nest", None, None, -105.2244406, 40.19171332),
+]
 # --- Core constants ---
 PERCH_COORDS = {
     "Nest": (-105.2244406, 40.19171332),
@@ -1286,12 +1310,33 @@ def No_Adults_Present_but_JV3_Present(df):
 # =============================================================================
 # COORDINATE FUNCTIONS
 # =============================================================================
+def apply_nest_overrides(df):
+    df = df.copy()
+    df["date"] = pd.to_datetime(df["date"])
+
+    for site, nest, start, end, lon, lat in NEST_OVERRIDES:
+        start = pd.to_datetime(start) if start else pd.Timestamp.min
+        end = pd.to_datetime(end) if end else pd.Timestamp.max
+
+        mask = (
+            (df["nest.name"] == site) &
+            (df["date"] >= start) &
+            (df["date"] <= end)
+        )
+
+        df.loc[mask, "nest_longitude"] = lon
+        df.loc[mask, "nest_latitude"] = lat
+
+    return df
+
 def nest_longitude(df):
     df["nest_longitude"] = PERCH_COORDS['Nest'][0]
+    df = apply_nest_overrides(df)
     return df
 
 def nest_latitude(df):
     df["nest_latitude"] = PERCH_COORDS['Nest'][1]
+    df = apply_nest_overrides(df)
     return df
 
 def p1_longitude(df):
