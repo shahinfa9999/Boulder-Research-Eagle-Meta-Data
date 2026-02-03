@@ -2788,10 +2788,15 @@ def load_data_streamlit(file):
 # ============================================================
 
 def export_pipeline_tabs(tabs, path="pipeline_tabs.xlsx"):
-    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
-        for tab, funcs in tabs.items():
-            df = pd.DataFrame({"function": [f.__name__ for f in funcs]})
-            df.to_excel(writer, sheet_name=tab[:31], index=False)
+    """
+    Export pipeline tabs to Excel. 
+    Note: File writing is disabled for Streamlit compatibility.
+    Returns dictionary of DataFrames instead.
+    """
+    result = {}
+    for tab, funcs in tabs.items():
+        result[tab] = pd.DataFrame({"function": [f.__name__ for f in funcs]})
+    return result
 
 def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, percent=False, output_path='Period_week_summary.xlsx'):
     """
@@ -2876,13 +2881,6 @@ def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, per
         for col in sum_cols:
             perc_col = f"{col}_percent"
             agg_df[perc_col] = (agg_df[col] / (agg_df['num_observations'] * 3)) * 100
-    
-    # Save to Excel
-    agg_df.to_excel(output_path, index=False, engine='openpyxl')
-    
-    print(f"\n✓ Aggregated {len(agg_df)} two-week periods")
-    print(f"✓ Summed {len(sum_cols)} metric columns")
-    print(f"✓ Saved to: {output_path}")
     
     return agg_df
 
