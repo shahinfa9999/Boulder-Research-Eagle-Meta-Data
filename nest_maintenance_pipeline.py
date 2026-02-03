@@ -14,10 +14,10 @@ Outputs:
     <prefix>_biweekly_nest_maintenance_expanded.csv
 """
 
-import os
 import numpy as np
 import pandas as pd
 from datetime import timedelta
+
 
 
 ############################################################
@@ -356,18 +356,5 @@ def run_pipeline_nm(input_file: str):
     df = assign_sessions(df)
     sessions = extract_session_summaries(df)
     biweekly = summarize_biweekly(sessions)
-
-    base = os.path.splitext(os.path.basename(input_file))[0]
-
-    out1 = f"{base}_session_nest_maintenance.csv"
-    out2 = f"{base}_biweekly_nest_maintenance_expanded.csv"
-
-    sessions.to_csv(out1, index=False, float_format="%.6f")
-    biweekly.to_csv(out2, index=False, float_format="%.6f")
-
-    print("\nNest-maintenance pipeline completed.")
-    print(f"  Sessions file : {out1}")
-    print(f"  Biweekly file : {out2}\n")
-
 
     return sessions, biweekly
