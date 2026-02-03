@@ -218,4 +218,3 @@ if run_button:
         file_name="Period_summary.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
-
