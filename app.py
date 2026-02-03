@@ -27,7 +27,7 @@ selected_nests = st.sidebar.selectbox(
 )
 
 date_range = st.sidebar.date_input(
-    "Date range (optional)", value=[],
+    "Date range (optional)", value=None,
     help="Select start and end date to filter observations by date. Default is no date filtering."
 )
 
