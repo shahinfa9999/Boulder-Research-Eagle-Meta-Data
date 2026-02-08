@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from pipeline import load_data_streamlit, run_pipeline, aggregate_by_two_weeks, load_perch_coords, PIPELINE_FUNCTIONS_LIST, load_data
+from pipeline import load_data_streamlit, run_pipeline, aggregate_by_two_weeks, load_perch_coords, PIPELINE_FUNCTIONS_LIST
 
 from session_stats import run_stats_in_memory
 from nest_maintenance_pipeline import run_pipeline_nm
@@ -68,6 +68,40 @@ maintenance_file = st.sidebar.file_uploader(
     "Upload Nest-Maintenance Raw CSV (optional)",
     type=["csv"]
 )
+
+################ dummy imghdr for Streamlit compatibility ################
+import streamlit as st
+
+# Example metrics (replace with your real PIPELINE_FUNCTIONS_LIST)
+PIPELINE_FUNCTIONS_LIST = PIPELINE_FUNCTIONS_LIST[:10]  # assuming this already exists
+
+st.sidebar.subheader("Metric(s) to aggregate")
+
+# Master toggle
+use_all_metrics = st.sidebar.checkbox("All metrics (None)", value=True)
+
+selected_metrics = []
+
+# Individual metric checkboxes
+for metric_name in PIPELINE_FUNCTIONS_LIST:
+    checked = st.sidebar.checkbox(
+        metric_name,
+        value=False if use_all_metrics else False,
+        key=f"metric_{metric_name}"
+    )
+    if checked:
+        selected_metrics.append(metric_name)
+
+# Final output that replaces your multiselect variable
+if use_all_metrics or len(selected_metrics) == 0:
+    metric = ["(None)"]   # mimic your old multiselect default
+else:
+    metric = selected_metrics
+
+st.sidebar.caption(f"Selected: {metric}")
+
+
+#######################################################
 
 
 metric = st.sidebar.multiselect(
