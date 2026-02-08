@@ -42,6 +42,30 @@ period = st.sidebar.selectbox(
     )
 )
 
+
+############
+st.sidebar.subheader("Metric(s) to aggregate -- DUMMY")
+
+use_all = st.sidebar.checkbox("All metrics (None)", value=True)
+
+selected_metrics = []
+
+for fn in PIPELINE_FUNCTIONS_LIST:
+    checked = st.sidebar.checkbox(
+        fn,
+        value=not use_all,   # if "All" is checked, default others to False
+        key=f"metric_{fn}"
+    )
+    if checked:
+        selected_metrics.append(fn)
+
+# Final metric selection logic (match your old behavior)
+if use_all or len(selected_metrics) == 0:
+    metric = ["(None)"]   # or [] depending on how your pipeline interprets "all"
+else:
+    metric = selected_metrics
+############
+
 normalize = st.sidebar.selectbox(
     "Calculated (effort-normalized) output",
     ["yes", "no"],
