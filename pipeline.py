@@ -2798,7 +2798,7 @@ def export_pipeline_tabs(tabs, path="pipeline_tabs.xlsx"):
         result[tab] = pd.DataFrame({"function": [f.__name__ for f in funcs]})
     return result
 
-def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, percent=False, output_path='Period_week_summary.xlsx'):
+def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, percent=False, min_valid_sex_counts=0.9):
     """
     Aggregate all metrics by 2-week periods.
     Sums all numeric columns (the 0/3 indicator columns).
@@ -2812,7 +2812,7 @@ def aggregate_by_two_weeks(df, date_col='date', period= '2W', metric = None, per
 
     df['total_valid_sex_counts_per_period'] = (df['female_counts_per_date'] + df['male_counts_per_date'] )/ (df['female_counts_per_date'] + df['male_counts_per_date'] + df['undiff1_counts_per_date'] + df['undiff2_counts_per_date'])
     df = df.drop(columns=['female_counts_per_date', 'male_counts_per_date', 'undiff1_counts_per_date', 'undiff2_counts_per_date'])
-    df = df[df['total_valid_sex_counts_per_period'].fillna(0) >= 0.9]
+    df = df[df['total_valid_sex_counts_per_period'].fillna(0) >= min_valid_sex_counts]
 
     if metric:
         try:

@@ -30,7 +30,12 @@ date_range = st.sidebar.date_input(
     "Date range (optional)", value=None,
     help="Select start and end date to filter observations by date. Default is no date filtering."
 )
-
+min_valid_sex_counts = st.sidebar.slider(
+    "Minimum valid sex counts per period (0-1)", min_value=0.0, max_value=1.0, value=0.9,
+    help=(
+        "Filters out periods where the proportion of valid sex counts (female + male) to total counts (female + male + undiff1 + undiff2) is below this threshold. This helps ensure that the aggregated metrics are based on a sufficient amount of valid sex data."
+    )
+)
 period = st.sidebar.selectbox(
     "Aggregation Window",
     ["1D", "1W", "2W", "4W"],
@@ -43,28 +48,6 @@ period = st.sidebar.selectbox(
 )
 
 
-############
-st.sidebar.subheader("Metric(s) to aggregate -- DUMMY")
-
-use_all = st.sidebar.checkbox("All metrics (None)", value=True)
-
-selected_metrics = []
-
-for fn in PIPELINE_FUNCTIONS_LIST:
-    checked = st.sidebar.checkbox(
-        fn,
-        value=not use_all,   # if "All" is checked, default others to False
-        key=f"metric_{fn}"
-    )
-    if checked:
-        selected_metrics.append(fn)
-
-# Final metric selection logic (match your old behavior)
-if use_all or len(selected_metrics) == 0:
-    metric = ["(None)"]   # or [] depending on how your pipeline interprets "all"
-else:
-    metric = selected_metrics
-############
 
 normalize = st.sidebar.selectbox(
     "Calculated (effort-normalized) output",
@@ -212,7 +195,8 @@ if run_button:
     agg_df = aggregate_by_two_weeks(
         df_processed,
         period=period,
-        metric=metric if metric else None, 
+        metric=metric if metric else None,
+        min_valid_sex_counts=0.9, 
         percent=(normalize == "yes")
     )
     if normalize == "yes":
