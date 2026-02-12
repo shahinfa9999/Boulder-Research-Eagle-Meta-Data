@@ -31,9 +31,9 @@ date_range = st.sidebar.date_input(
     help="Select start and end date to filter observations by date. Default is no date filtering."
 )
 min_valid_sex_counts = st.sidebar.slider(
-    "Minimum valid sex counts per period (0-1)", min_value=0.0, max_value=1.0, value=0.9,
+    "Minimum valid gender counts per period (0-1)", min_value=0.0, max_value=1.0, value=0.9,
     help=(
-        "Filters out periods where the proportion of valid sex counts (female + male) to total counts (female + male + undiff1 + undiff2) is below this threshold. This helps ensure that the aggregated metrics are based on a sufficient amount of valid sex data."
+        "Filters out periods where the proportion of valid sex counts (female + male) to total counts (female + male + undiff1 + undiff2) is greater or equal to this threshold. This helps ensure that the aggregated metrics are based on a sufficient amount of valid sex data."
     )
 )
 period = st.sidebar.selectbox(
@@ -93,13 +93,14 @@ for metric_name in PIPELINE_FUNCTIONS_LIST:
         selected_metrics.append(metric_name)
 
 # Final output that replaces your multiselect variable
+'''
 if use_all_metrics or len(selected_metrics) == 0:
     metric = ["(None)"]   # mimic your old multiselect default
 else:
     metric = selected_metrics
 
 st.sidebar.caption(f"Selected: {metric}")
-
+'''
 
 #######################################################
 
@@ -109,7 +110,7 @@ metric = st.sidebar.multiselect(
     ["(None)"] + PIPELINE_FUNCTIONS_LIST,
     default=["(None)"]
 )
-
+'''
 if isinstance(metric, list):
     # If user accidentally includes "(None)" along with other metrics, drop it.
     metric = [m for m in metric if m != "(None)"]
@@ -119,7 +120,7 @@ if isinstance(metric, list):
         metric = metric[0]
 elif isinstance(metric, list) and len(metric) >= 1:
     metric = metric[0]
-
+'''
 
 run_button = st.sidebar.button("Run Pipeline")
 
