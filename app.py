@@ -78,7 +78,7 @@ PIPELINE_FUNCTIONS_LIST = PIPELINE_FUNCTIONS_LIST # assuming this already exists
 st.sidebar.subheader("Metric(s) to aggregate")
 
 # Master toggle
-use_all_metrics = st.sidebar.checkbox("All metrics (None)", value=True)
+
 
 
 
@@ -96,9 +96,13 @@ metric = st.sidebar.multiselect(
 
 
 run_button = st.sidebar.button("Run Pipeline")
+
 def safe_df(df):
     df = df.copy()
-    return df.applymap(lambda x: "" if x is None else str(x))
+    for col in df.columns:
+        df[col] = df[col].astype(str)
+    return df
+
 
 # ---------------- Run ----------------
 if run_button:

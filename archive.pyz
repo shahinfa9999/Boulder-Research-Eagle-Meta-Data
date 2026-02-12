@@ -11,6 +11,7 @@ elif isinstance(metric, list) and len(metric) >= 1:
 '''
 
 '''
+use_all_metrics = st.sidebar.checkbox("All metrics (None)", value=True)
 if use_all_metrics or len(selected_metrics) == 0:
     metric = ["(None)"]   # mimic your old multiselect default
 else:
