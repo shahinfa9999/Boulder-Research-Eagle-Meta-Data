@@ -80,27 +80,10 @@ st.sidebar.subheader("Metric(s) to aggregate")
 # Master toggle
 use_all_metrics = st.sidebar.checkbox("All metrics (None)", value=True)
 
-selected_metrics = []
 
-# Individual metric checkboxes
-for metric_name in PIPELINE_FUNCTIONS_LIST:
-    checked = st.sidebar.checkbox(
-        metric_name,
-        value=False if use_all_metrics else False,
-        key=f"metric_{metric_name}"
-    )
-    if checked:
-        selected_metrics.append(metric_name)
 
 # Final output that replaces your multiselect variable
-'''
-if use_all_metrics or len(selected_metrics) == 0:
-    metric = ["(None)"]   # mimic your old multiselect default
-else:
-    metric = selected_metrics
 
-st.sidebar.caption(f"Selected: {metric}")
-'''
 
 #######################################################
 
@@ -110,21 +93,12 @@ metric = st.sidebar.multiselect(
     ["(None)"] + PIPELINE_FUNCTIONS_LIST,
     default=["(None)"]
 )
-'''
-if isinstance(metric, list):
-    # If user accidentally includes "(None)" along with other metrics, drop it.
-    metric = [m for m in metric if m != "(None)"]
-    if len(metric) == 0:
-        metric = None
-    elif len(metric) == 1:
-        metric = metric[0]
-elif isinstance(metric, list) and len(metric) >= 1:
-    metric = metric[0]
-'''
+
 
 run_button = st.sidebar.button("Run Pipeline")
 def safe_df(df):
-    return df.astype(str)
+    df = df.copy()
+    return df.applymap(lambda x: "" if x is None else str(x))
 
 # ---------------- Run ----------------
 if run_button:
