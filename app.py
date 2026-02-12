@@ -234,10 +234,13 @@ if run_button:
         min_valid_sex_counts=0.9, 
         percent=(normalize == "yes")
     )
-    if normalize == "yes":
-        agg_df = agg_df[['Period_bin', 'num_observations', str(metric), str(metric) + '_percent']] if metric else agg_df
-    else:
-        agg_df = agg_df[['Period_bin', 'num_observations', str(metric)]] if metric else agg_df
+    if metric:
+        metric_cols = metric if isinstance(metric, list) else [metric]
+        cols = ['Period_bin', 'num_observations'] + metric_cols
+        if normalize == "yes":
+            cols += [f"{m}_percent" for m in metric_cols]
+        cols = [c for c in cols if c in agg_df.columns]
+        agg_df = agg_df[cols]
 
     st.subheader("Aggregated Output")
     st.dataframe(agg_df)
