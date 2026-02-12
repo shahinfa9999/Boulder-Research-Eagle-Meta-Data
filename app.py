@@ -123,6 +123,8 @@ elif isinstance(metric, list) and len(metric) >= 1:
 '''
 
 run_button = st.sidebar.button("Run Pipeline")
+def safe_df(df):
+    return df.astype(str)
 
 # ---------------- Run ----------------
 if run_button:
@@ -221,7 +223,7 @@ if run_button:
 
     # ---------------- Results ----------------
     st.subheader("Processed Data Preview")
-    st.dataframe(df_processed.head(10))
+    st.dataframe(safe_df(df_processed.head(10)))
     
 
     
@@ -243,7 +245,7 @@ if run_button:
         agg_df = agg_df[cols]
 
     st.subheader("Aggregated Output")
-    st.dataframe(agg_df.head(10))
+    st.dataframe(safe_df(agg_df.head(10)))
 
     # ---------------- Downloads ----------------
     st.download_button(
