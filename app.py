@@ -221,7 +221,7 @@ if run_button:
 
     # ---------------- Results ----------------
     st.subheader("Processed Data Preview")
-    st.dataframe(df_processed.head(50))
+    st.dataframe(df_processed.head(10))
     
 
     
@@ -243,7 +243,7 @@ if run_button:
         agg_df = agg_df[cols]
 
     st.subheader("Aggregated Output")
-    st.dataframe(agg_df)
+    st.dataframe(agg_df.head(10))
 
     # ---------------- Downloads ----------------
     st.download_button(
