@@ -3,7 +3,55 @@ import numpy as np
 
 
 PIPELINE_FUNCTIONS_LIST = [
-    # -------------------- Coordinates --------------------
+    # -------------------- Territorial Presence — by adult --------------------
+    "AF_Present",
+    "AM_Present",
+    "UA1_Present",
+    "UA2_Present",
+
+    # -------------------- Nest Attendance — by adult --------------------
+    "AF_Attending",
+    "AM_Attending",
+    "UA1_Attending",
+    "UA2_Attending",
+
+    # -------------------- Core Focal Area — by adult --------------------
+    "AF_three_and_four",
+    "AM_three_and_four",
+    "UA1_three_and_four",
+    "UA2_three_and_four",
+
+    # -------------------- SECTION 3 — Nest Building / Maintenance --------------------
+    "AF_NestBuilding",
+    "AM_NestBuilding",
+    "UA1_NestBuilding",
+    "UA2_NestBuilding",
+
+    # Stick delivery (rate/hour)
+    "af_surveytime",
+    "am_surveytime",
+    "ua1_surveytime",
+    "ua2_surveytime",
+
+    # Prone / nest-cup work
+    "AF_Brooding",   # if this maps to prone/nest-cup work in your code
+    "AM_Brooding",
+    "UA1_Brooding",
+    "UA2_Brooding",
+
+    # -------------------- SECTION 4 — Incubation & Brooding --------------------
+    "AF_Incubating",
+    "AM_Incubating",
+    "UA1_Incubating",
+    "UA2_Incubating",
+    "AF_Brooding",
+    "AM_Brooding",
+    "UA1_Brooding",
+    "UA2_Brooding",
+
+    # -------------------- Everything else (unchanged, appended) --------------------
+
+    # Coordinates
     "nest_longitude",
     "nest_latitude",
     "p1_longitude",
@@ -17,7 +65,7 @@ PIPELINE_FUNCTIONS_LIST = [
     "p5_longitude",
     "p5_latitude",
 
-    # -------------------- Distances from nest --------------------
+    # Distances
     "p1_dist_from_nest_code",
     "p2_dist_from_nest_code",
     "p3_dist_from_nest_code",
@@ -25,161 +73,95 @@ PIPELINE_FUNCTIONS_LIST = [
     "p5_dist_from_nest_code",
     "min_adult_dist_from_nest_code",
 
-    # -------------------- Adult presence --------------------
-    "AF_Present",
-    "AM_Present",
-    "UA1_Present",
-    "UA2_Present",
-    "at_least_one_adult_present",
-
-    # -------------------- Juvenile presence --------------------
+    # Juveniles
     "JV1_Present",
     "JV2_Present",
     "JV3_Present",
     "At_least_one_JV_Present",
 
-    # -------------------- Juvenile–Adult distances --------------------
-    "jv1_dist_from_nearest_adult_code",
-    "jv2_dist_from_nearest_adult_code",
-    "jv3_dist_from_nearest_adult_code",
-
-    # -------------------- AF --------------------
-    "AF_In_Nest_Tree",
-    "AF_Attending",
-    "AF_three_and_four",
-    "AF_Flying",
-    "AF_Eating",
-    "AF_Feeding_Young",
-    "AF_NestBuilding",
-    "AF_Incubating",
-    "AF_Brooding",
-    "AF_Aggressive_Interaction",
-    "AF_Copulating",
-    "af_surveytime",
-
-    # -------------------- AM --------------------
-    "AM_In_Nest_Tree",
-    "AM_Attending",
-    "AM_three_and_four",
-    "AM_Flying",
-    "AM_Eating",
-    "AM_Feeding_Young",
-    "AM_NestBuilding",
-    "AM_Incubating",
-    "AM_Brooding",
-    "AM_Aggressive_Interaction",
-    "AM_Copulating",
-    "am_surveytime",
-
-    # -------------------- UA1 --------------------
-    "UA1_In_Nest_Tree",
-    "UA1_Attending",
-    "UA1_three_and_four",
-    "UA1_Flying",
-    "UA1_Eating",
-    "UA1_Feeding_Young",
-    "UA1_NestBuilding",
-    "UA1_Incubating",
-    "UA1_Brooding",
-    "UA1_Aggressive_Interaction",
-    "UA1_Copulating",
-    "ua1_surveytime",
-
-    # -------------------- UA2 --------------------
-    "UA2_In_Nest_Tree",
-    "UA2_Attending",
-    "UA2_three_and_four",
-    "UA2_Flying",
-    "UA2_Eating",
-    "UA2_Feeding_Young",
-    "UA2_NestBuilding",
-    "UA2_Incubating",
-    "UA2_Brooding",
-    "UA2_Aggressive_Interaction",
-    "UA2_Copulating",
-    "ua2_surveytime",
-
-    # -------------------- JV1 --------------------
-    "JV1_In_Nest_Tree",
     "JV1_Attending",
-    "jv1_surveytime",
-    "JV1_Aggressive_Interaction",
-    "JV1_Flying",
-    "JV1_Eating",
-    "JV1_Feeding_Young",
-    "JV1_NestBuilding",
-    "JV1_Copulating",
-    "JV1_three_and_four",
-    "JV1_Brooding",
-    "JV1_Incubating",
-    "jv1_dist_from_af_ua1_code",
-    "jv1_dist_from_am_ua2_code",
-    "No_Adults_Present_but_JV1_Present",
-
-    # -------------------- JV2 --------------------
-    "JV2_In_Nest_Tree",
     "JV2_Attending",
-    "jv2_surveytime",
-    "JV2_Aggressive_Interaction",
-    "JV2_Flying",
-    "JV2_Eating",
-    "JV2_Feeding_Young",
-    "JV2_NestBuilding",
-    "JV2_Copulating",
-    "JV2_three_and_four",
-    "JV2_Brooding",
-    "JV2_Incubating",
-    "jv2_dist_from_af_ua1_code",
-    "jv2_dist_from_am_ua2_code",
-    "No_Adults_Present_but_JV2_Present",
-
-    # -------------------- JV3 --------------------
-    "JV3_In_Nest_Tree",
     "JV3_Attending",
-    "jv3_surveytime",
-    "JV3_Aggressive_Interaction",
+
+    "JV1_Flying",
+    "JV2_Flying",
     "JV3_Flying",
+
+    "JV1_Eating",
+    "JV2_Eating",
     "JV3_Eating",
+
+    "JV1_Feeding_Young",
+    "JV2_Feeding_Young",
     "JV3_Feeding_Young",
+
+    "JV1_NestBuilding",
+    "JV2_NestBuilding",
     "JV3_NestBuilding",
+
+    "JV1_Copulating",
+    "JV2_Copulating",
     "JV3_Copulating",
+
+    "JV1_three_and_four",
+    "JV2_three_and_four",
     "JV3_three_and_four",
-    "JV3_Brooding",
-    "JV3_Incubating",
+
+    "jv1_surveytime",
+    "jv2_surveytime",
+    "jv3_surveytime",
+
+    "jv1_dist_from_af_ua1_code",
+    "jv2_dist_from_af_ua1_code",
     "jv3_dist_from_af_ua1_code",
+    "jv1_dist_from_am_ua2_code",
+    "jv2_dist_from_am_ua2_code",
     "jv3_dist_from_am_ua2_code",
+
+    "No_Adults_Present_but_JV1_Present",
+    "No_Adults_Present_but_JV2_Present",
     "No_Adults_Present_but_JV3_Present",
 
-    # -------------------- FEHA --------------------
+    # FEHA
     "FEHA1_Present",
-    "FEHA1_surveytime",
-    "FEHA1_Aggressive_Interaction",
-    "FEHA1_Flying",
-    "FEHA1_Eating",
-    "FEHA1_Feeding_Young",
-    "FEHA1_NestBuilding",
-    "FEHA1_Copulating",
-    "FEHA1_Brooding",
-    "FEHA1_Incubating",
-    "FEHA1_In_Nest_Tree",
-    "FEHA1_Attending",
-
     "FEHA2_Present",
-    "FEHA2_surveytime",
-    "FEHA2_Aggressive_Interaction",
-    "FEHA2_Flying",
-    "FEHA2_Eating",
-    "FEHA2_Feeding_Young",
-    "FEHA2_NestBuilding",
-    "FEHA2_Copulating",
-    "FEHA2_Brooding",
-    "FEHA2_Incubating",
-    "FEHA2_In_Nest_Tree",
-    "FEHA2_Attending",
-
     "At_Least_One_FEHA_Present",
 
-    # -------------------- Presence logic --------------------
+    "FEHA1_surveytime",
+    "FEHA2_surveytime",
+
+    "FEHA1_Aggressive_Interaction",
+    "FEHA2_Aggressive_Interaction",
+
+    "FEHA1_Flying",
+    "FEHA2_Flying",
+
+    "FEHA1_Eating",
+    "FEHA2_Eating",
+
+    "FEHA1_Feeding_Young",
+    "FEHA2_Feeding_Young",
+
+    "FEHA1_NestBuilding",
+    "FEHA2_NestBuilding",
+
+    "FEHA1_Copulating",
+    "FEHA2_Copulating",
+
+    "FEHA1_Brooding",
+    "FEHA2_Brooding",
+
+    "FEHA1_Incubating",
+    "FEHA2_Incubating",
+
+    "FEHA1_In_Nest_Tree",
+    "FEHA2_In_Nest_Tree",
+
+    "FEHA1_Attending",
+    "FEHA2_Attending",
+
+    # Presence logic
+    "at_least_one_adult_present",
     "no_adult_present",
     "only_one_adult_present",
     "two_adults_present",

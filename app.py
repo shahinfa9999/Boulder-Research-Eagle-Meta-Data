@@ -7,7 +7,7 @@ from nest_maintenance_pipeline import run_pipeline_nm
 
 
 st.set_page_config(layout="wide")
-st.title("Bird Nest Observation Pipeline")
+st.title("Nest Summary Analysis Pipeline")
 
 # ---------------- Sidebar ----------------
 st.sidebar.header("Inputs")
@@ -26,10 +26,20 @@ selected_nests = st.sidebar.selectbox(
     "Nest", ["Hygiene", "BOCR", "CR16.5", "Stearns", "Erie", "White Rocks", "Erie", "ERLA", "RD15"]
 )
 
-date_range = st.sidebar.date_input(
-    "Date range (optional)", value=[],
-    help="Select start and end date to filter observations by date. Default is no date filtering."
+use_date_filter = st.sidebar.checkbox("Filter by date range", value=False)
+
+start_date = st.sidebar.date_input(
+    "Start date",
+    value=pd.to_datetime("2000-01-01").date()
 )
+
+end_date = st.sidebar.date_input(
+    "End date",
+    value=pd.Timestamp.today().date()
+)
+
+date_range = (start_date, end_date) if use_date_filter else None
+
 min_valid_sex_counts = st.sidebar.slider(
     "Minimum valid gender counts per period (0-1)", min_value=0.0, max_value=1.0, value=0.9,
     help=(
@@ -90,7 +100,7 @@ st.sidebar.subheader("Metric(s) to aggregate")
 
 metric = st.sidebar.multiselect(
     "Metric(s) to aggregate - leave blank/None for all",
-    ["(None)"] + PIPELINE_FUNCTIONS_LIST,
+    ["(None)"] + PIPELINE_FUNCTIONS_LIST[:35],  # Show only the first 35 for usability
     default=["(None)"]
 )
 
